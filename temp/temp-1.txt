@@ -1,0 +1,20 @@
+[{
+                    column: 'id',
+                    type: 'text'
+                },{
+                    column: 'first_name',
+                    'type': 'text'
+                },{
+                    column: 'last_name',
+                    type: 'text'
+                },{
+                    column: 'email',
+                    type: 'text'
+                },{
+                    column: 'gender',
+                    type: 'dropdown',
+                    renderHTML: '<select class="form-control"><option value="">-Select-</option><option value="male">Male</option><option value="female">Female</option></select>'
+                },{
+                    column: 'ip_address',
+                    type: 'text'
+                }]

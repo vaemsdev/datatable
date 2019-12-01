@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Datatable</title>
-  <link rel="stylesheet" href="style.css">
+  <link type="text/css" rel="stylesheet" href="assets/css/style.css">
   <script src="assets/js/jquery-3.4.1.min.js"></script>
   <script src="assets/js/module.js"></script>
 </head>
@@ -21,33 +21,71 @@
             </div>
             <table class="table width-full table-bordered"></table>
         </div>
+        <div>
+            <button id="export">Export</button>
+        </div>
     </div>
 </body>
 </html>
 
 <script>
 
-  $.get('./data.json' , function(data){
+    $('#export').click(function(e){
+        console.log(DataTable.export())
+    });
+
+  $.get('./temp/temp-json.json' , function(data){
 
     DataTable.
         clear().
         init({
             selector: '.table',
             data: data,
+            columns: {
+                id : {type: 'text', alias: 'Id'},
+                first_name : {
+                    type: 'textbox',
+                    alias: 'First Name',
+                    renderHTML: '<input class="form-control" type="text">'
+                },
+                last_name : {
+                    type: 'textbox',
+                    alias: 'Last Name',
+                    renderHTML: '<input class="form-control" type="text">'
+                },
+                email : {
+                    type: 'textbox',
+                    alias: 'Email',
+                    renderHTML: '<input class="form-control" type="text">'
+                },
+                gender: {
+                    type: 'dropdown',
+                    alias: 'Gender',
+                    process: function($select, $value){
+
+                    },
+                    renderHTML: '<select class="form-control"><option value="">-Select-</option><option value="Male">Male</option><option value="Female">Female</option></select>'},
+                ip_address: {
+                    type: 'textbox',
+                    alias: 'IP Address',
+                    renderHTML: '<input class="form-control" type="text">'
+                }
+            },
             config: {
                 orderby: {
-                    field: 'ID',
+                    field: 'id',
                     order: 'asc'
                 }
             }
         }).
         load();
-
-        function search(term){
-
-          DataTable.search({
-              "term": term
-          });
-        }
   });
+
+  function search(term){
+
+    DataTable.search({
+          "term": term
+    });
+  }
+
 </script>

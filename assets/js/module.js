@@ -4,6 +4,7 @@
         'init': function(config){
 
             this.data = config.data;
+            this.columns = config.columns;
             this.config = config.config;
             this.table.selector = document.querySelector(config.selector);
             this.table.name = config.selector;
@@ -20,6 +21,7 @@
             tbody: '',
             thead: ''
         },
+        'columns': [],
         'filter': {
             term: "",
             data: []
@@ -34,8 +36,6 @@
                     return row[key].toString().toLowerCase().indexOf(opt.term.toLowerCase()) > -1;
                 }).indexOf(true) > -1 ? true : false;
             });
-
-            console.log(this.filter.data)
 
             this.clear().load();
         },
@@ -56,7 +56,7 @@
 
             var _ = this;
             
-            var keys = Object.keys(this.data[0]);
+            var keys = Object.keys(this.columns);
             
             if( document.querySelector(this.table.name + ' thead') == null){
             
@@ -65,7 +65,7 @@
                 keys.map( field => {
                     
                     var th = document.createElement('th');
-                    th.innerHTML = field;
+                    th.innerHTML = this.columns[field].alias;
 
                     th.addEventListener('click', function(e){
 
@@ -74,7 +74,7 @@
                         }
                         
                         this.dataset['order'] == 'asc' ? 
-                            this.dataset['order'] = 'desc' :
+                            this.dataset['order'] = 'desc':
                             this.dataset['order'] = 'asc';
 
                         _.orderby({
@@ -96,16 +96,58 @@
             
             var filter = this.filter.term.length == 0 ? this.data : this.filter.data;
 
-            filter.map( row => {
+            filter.map( (row,rowIndex) => {
 
                 var tr = document.createElement('tr');
-
+                
                 var len = Object.keys(row).length;
+                var type = '';
 
                 for(var i = 0; i < len; i++){
+                    
                     var td = document.createElement('td');
 
-                    td.innerHTML = row[Object.keys(row)[i]];
+                    rawElement = this.columns[Object.keys(row)[i]];
+
+                   
+                    if( rawElement.type == 'dropdown' ){
+
+                         /* dropdown */
+
+                        var tmp_div = document.createElement('div');
+                        tmp_div.innerHTML = rawElement.renderHTML.trim();
+                        tmp_div.firstChild.dataset['id'] = Object.keys(row)[i];
+                        
+                        for(var x = 0; x < tmp_div.firstChild.children.length; x++){
+                            
+                            if(tmp_div.firstChild.children[x].value.toLowerCase() == row[Object.keys(row)[i]].toLowerCase())
+                                tmp_div.firstChild.children[x].setAttribute('selected','selected');
+                        }
+
+                        td.innerHTML = tmp_div.firstChild.outerHTML;
+
+                        td.firstChild.addEventListener('change', function(){
+                            _.data[rowIndex][this.dataset.id] = this.value;
+                        });
+                    }
+                    else if(rawElement.type == 'textbox'){
+                        
+                        /* Textbox */
+                        var tmp_div = document.createElement('div');
+                        tmp_div.innerHTML = rawElement.renderHTML.trim();
+                        
+                        tmp_div.firstChild.setAttribute('value' , row[Object.keys(row)[i]]);
+                        tmp_div.firstChild.dataset['id'] = Object.keys(row)[i];
+                        td.innerHTML = tmp_div.firstChild.outerHTML;
+
+                        td.firstChild.addEventListener('change', function(){ 
+
+                            _.data[rowIndex][this.dataset.id] = this.value;
+                        });
+                    }
+                    else if( rawElement.type == 'text' )
+                        td.innerHTML = row[Object.keys(row)[i]];
+
                     tr.appendChild(td);
                 }
 
@@ -132,5 +174,8 @@
                 }
             });
 
+        },
+        export: function(){
+            return this.data;
         }
     }
