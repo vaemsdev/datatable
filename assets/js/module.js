@@ -26,6 +26,75 @@
             term: "",
             data: []
         },
+        'api' : {
+            elementNew : function(tag){
+                console.log()
+                return document.createElement(tag);
+            },
+            findOne: function(q){
+                return document.querySelector(q);
+            },
+            findAll: function(q,f){
+
+                var t = document.querySelectorAll(q);
+
+                for(var i = 0; i < t.length; i++){
+                    f(i,t[i]);
+                }
+            }
+        },
+        'pagination': function(){
+
+            let _ = this;
+
+            if(_.config['pageNo'] === undefined)
+                _.config['pageNo'] = 1;
+            
+            if(_.config['rows'] === undefined)
+                _.config['rows'] = 10;
+
+            return {
+
+                build: function(data){
+                    
+                    var __ = this;
+                    var pages = _.api.findOne('.pagination');
+                    var dataPages = [];
+                    
+                    pages.innerHTML = '';
+                    var ul = _.api.elementNew('ul');
+
+                    for(var i = 0; i < data.length / _.config.rows; i++){
+
+                        dataPages.push( data.slice(i* _.config.rows, (i+1) * _.config.rows) );
+
+                        var li = _.api.elementNew('li');
+                        
+                        li.dataset.id = i+1;
+                        li.addEventListener('click', function(){
+                            
+                           _.config['pageNo'] = this.dataset.id;
+                           _.api.findAll('.pagination ul li',function(i,e){
+                                e.classList.remove('active');
+                            });
+                                                        
+                           _.load();
+                           _.api.findOne('.pagination ul li[data-id="'+ this.dataset.id +'"]').classList.add('active')
+                        });
+                        li.innerText = i+1;
+                        ul.appendChild(li);
+                    }
+
+                    pages.appendChild(ul);
+                    return dataPages[_.config.pageNo-1];
+                },
+                'rowsPerPage': function(n){
+                    _.config['rows'] = parseInt(n);
+                    _.config['pageNo'] = 1;
+                    _.load();
+                }
+            }
+        },
         'search': function(opt){
             this.filter.term = opt.term;
             
@@ -38,6 +107,17 @@
             });
 
             this.clear().load();
+        },
+        'getData' : function(){
+
+            let dataX = [];
+
+            dataX = this.filter.term.length == 0 ? this.data : this.filter.data;
+            
+            if(this.config.pagination === true)
+                dataX = this.pagination().build( dataX );
+
+            return dataX;
         },
         'data': [],
         'header': function(){
@@ -65,9 +145,17 @@
                 keys.map( field => {
                     
                     var th = document.createElement('th');
-                    th.innerHTML = this.columns[field].alias;
 
-                    th.addEventListener('click', function(e){
+                    var chk = _.api.elementNew('input');
+                    chk.type = 'checkbox';
+                    chk.dataset.id = field;
+
+                    var sorter = _.api.elementNew('a');
+                    sorter.innerText = this.columns[field].alias;
+                    
+                    th.appendChild(chk);
+                
+                    sorter.addEventListener('click', function(e){
 
                         if(this.dataset['order'] == undefined){
                             this.dataset['order'] = 'asc';
@@ -85,6 +173,7 @@
                         _.clear().load();
                         
                     });
+                    th.appendChild(sorter);
 
                     head_tr.appendChild(th);
                 });
@@ -94,8 +183,9 @@
             this.table.selector.appendChild(this.table.thead);
             this.table.selector.appendChild(this.table.tbody);
             
-            var filter = this.filter.term.length == 0 ? this.data : this.filter.data;
+            let filter = this.getData();
 
+            _.clear();
             filter.map( (row,rowIndex) => {
 
                 var tr = document.createElement('tr');
@@ -161,11 +251,12 @@
 
             Object.keys(ths).map( th => {
 
-                if( ths[th].innerText != config.field)
+                if( ths[th].innerText.toLowerCase() != config.field.toLowerCase())
                     ths[th].dataset['order'] = '';
             });
 
-            this.data.sort(function(a,b){
+            let data = this.filter.term.length == 0 ? this.data : this.filter.data;
+            data.sort(function(a,b){
 
                 if (config.order == 'asc') {
                     return (a[config.field] > b[config.field]) ? 1 : ((a[config.field] < b[config.field]) ? -1 : 0);

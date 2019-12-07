@@ -20,7 +20,7 @@ body{
 }
 
 .table thead th {
-    color: #23649c;
+    color: #55a4e8;
     cursor: pointer;
     text-align: left;
     font-weight: normal;
@@ -50,6 +50,7 @@ body{
 .form-control{
     padding: 5px;
     border: 1px solid #dcdcdc;
+    width: 100%;
     border-radius: 4px;
     outline: none;
 }
@@ -76,8 +77,9 @@ body{
 }
 
 .table-def{
-    width: 100%;
+    width: auto;
     vertical-align: middle;
+    float: left;
     display: table-cell;
 }
 
@@ -85,4 +87,40 @@ body{
 .table-options .table-title{
     margin: 0;
     font-size: 1.5em;
+}
+
+/* Pagination */
+
+.pagination{
+    margin: 10px 0;
+    display: inline-block;
+}
+
+.pagination ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.pagination ul li {
+    display: inline-block;
+    padding: 14px 10px;
+    line-height: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    background-color: #FFF;
+    border: 1px solid #cecece;
+    margin: 0 5px;
+    box-shadow: 0 0 4px 0px #ececec;
+}
+
+.table-page {
+    display: table-cell;
+    width: auto;
+    text-align: left;
+    vertical-align: middle;
+}
+
+li.active {
+    background-color: #e0e0e0 !important;
 }

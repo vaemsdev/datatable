@@ -15,11 +15,25 @@
                 <div class="table-def">
                     <span class="table-title">User Data</span>
                 </div>
+                <div class="table-page">
+                    <span class="table-page-title">
+                      <select data-datatable-pagination>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      Rows per Page
+                    </span>
+                </div>
                 <div class="table-filter form-group pull-right">
                     <input type="text" placeholder="Search" onkeyup="search(this.value)" class="form-control">
                 </div>
             </div>
             <table class="table width-full table-bordered"></table>
+        </div>
+        <div class="pagination">
+         
         </div>
         <div>
             <button id="export">Export</button>
@@ -64,7 +78,7 @@
                     process: function($select, $value){
 
                     },
-                    renderHTML: '<select class="form-control"><option value="">-Select-</option><option value="Male">Male</option><option value="Female">Female</option></select>'},
+                    renderHTML: '<select class="form-control"><option value="Male">Male</option><option value="Female">Female</option></select>'},
                 ip_address: {
                     type: 'textbox',
                     alias: 'IP Address',
@@ -75,7 +89,8 @@
                 orderby: {
                     field: 'id',
                     order: 'asc'
-                }
+                },
+                pagination: true
             }
         }).
         load();
@@ -87,5 +102,11 @@
           "term": term
     });
   }
+
+  document.querySelector('select[data-datatable-pagination]')
+      .addEventListener('change' , function(){
+        console.log(this.value)
+          DataTable.pagination().rowsPerPage(this.value);
+      });
 
 </script>
